@@ -1,10 +1,39 @@
 import { useState } from 'react';
 
 import css from './Phonebook.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { nanoid } from 'nanoid';
+import { addContact } from 'redux/contactSlise';
+import { getContacts } from 'redux/selectors';
 
-export default function Phonebook({ addContact }) {
+export default function Phonebook() {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const contacts = useSelector(getContacts);
+
+  const dispatch = useDispatch();
+
+  function isFound({name}) {
+    const findName = name.trim().toLowerCase();
+    return contacts.some(item => item.name.toLowerCase() === findName);
+  }
+
+
+
+  function formSubmitHandler(data) {
+    const dupplicate = isFound({ name })
+    if (dupplicate) {
+      window.alert('this name isalready in contacts')
+      return
+    }
+    const newContact = {
+    
+      ...data,
+      id: nanoid(),
+    };
+    
+    dispatch(addContact(newContact));
+  }
 
   const handleInputChange = event => {
     const { name, value } = event.currentTarget;
@@ -28,7 +57,7 @@ export default function Phonebook({ addContact }) {
   const handleSubmit = event => {
     event.preventDefault();
 
-    addContact({ name, number });
+    formSubmitHandler({ name, number });
 
     reset();
   };
